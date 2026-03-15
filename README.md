@@ -80,8 +80,8 @@ cast --version
 ### Install & Build
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/NorrisAkg/decentrilized-voting-system.git
+cd decentrilized-voting-system
 forge build
 ```
 
