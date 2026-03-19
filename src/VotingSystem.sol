@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+error VotingSystem__NotTheOwner(address caller);
+error VotingSystem__VotingIsNotPending();
+error VotingSystem__VotingIsNotOpened();
+error VotingSystem__VotingIsNotClosed();
+
 contract VotingSystem {
+    event VoteCast(address indexed voter, uint256 indexed candidateId);
+
     struct Candidate {
         string name;
         uint256 votes;
@@ -15,39 +22,58 @@ contract VotingSystem {
     address private owner;
     Candidate[] public candidates;
     mapping(address => bool) hasVoted;
-    VotingStatus public votingStatus;
+    VotingStatus private votingStatus;
 
     constructor() {
         owner = msg.sender;
         votingStatus = VotingStatus.PENDING;
     }
 
+    function _onlyOwner() private view {
+        if (msg.sender != owner) {
+            revert VotingSystem__NotTheOwner(msg.sender);
+        }
+    }
+
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can perform this action");
+        _onlyOwner();
         _;
     }
 
+    function getVotingStatus() private view returns (VotingStatus) {
+        return votingStatus;
+    }
+
+    function _votingIsPending() private view {
+        if (getVotingStatus() != VotingStatus.PENDING) {
+            revert VotingSystem__VotingIsNotPending();
+        }
+    }
+
+    function _votingIsOpened() private view {
+        if (getVotingStatus() != VotingStatus.OPENED) {
+            revert VotingSystem__VotingIsNotOpened();
+        }
+    }
+
+    function _votingIsClosed() private view {
+        if (getVotingStatus() != VotingStatus.CLOSED) {
+            revert VotingSystem__VotingIsNotClosed();
+        }
+    }
+
     modifier votingIsPending() {
-        require(
-            votingStatus == VotingStatus.PENDING,
-            "This action can only be performed when the system is pending"
-        );
+        _votingIsPending();
         _;
     }
 
     modifier votingIsClosed() {
-        require(
-            votingStatus == VotingStatus.CLOSED,
-            "This action can only be performed when the voting is closed"
-        );
+        _votingIsClosed();
         _;
     }
 
     modifier votingIsOpened() {
-        require(
-            votingStatus == VotingStatus.OPENED,
-            "This action can only be performed when the system is opened"
-        );
+        _votingIsOpened();
         _;
     }
 
@@ -76,6 +102,8 @@ contract VotingSystem {
         Candidate storage candidate = candidates[candidateId]; // get candidate
         candidate.votes++; // increment candidate votes count
         hasVoted[msg.sender] = true; // set voter has voted
+
+        emit VoteCast(msg.sender, candidateId); // emit event
     }
 
     function getCandidatesCount() external view returns (uint256) {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {VotingSystem} from "../src/VotingSystem.sol";
+import {VotingSystem, VotingSystem__NotTheOwner, VotingSystem__VotingIsNotPending, VotingSystem__VotingIsNotOpened, VotingSystem__VotingIsNotClosed} from "../src/VotingSystem.sol";
 
 contract VotingSystemTest is Test {
     VotingSystem votingSystem;
@@ -34,7 +34,9 @@ contract VotingSystemTest is Test {
 
         vm.prank(voter1);
 
-        vm.expectRevert("Only the owner can perform this action");
+        vm.expectRevert(
+            abi.encodeWithSelector(VotingSystem__NotTheOwner.selector, voter1)
+        );
         votingSystem.addCandidate(candidateName);
     }
 
@@ -44,9 +46,7 @@ contract VotingSystemTest is Test {
         vm.startPrank(owner);
         votingSystem.openVoting();
 
-        vm.expectRevert(
-            "This action can only be performed when the system is pending"
-        );
+        vm.expectRevert(VotingSystem__VotingIsNotPending.selector);
         votingSystem.addCandidate(candidateName);
         vm.stopPrank();
     }
