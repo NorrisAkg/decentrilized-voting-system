@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {VotingSystem, VotingSystem__NotTheOwner, VotingSystem__VotingIsNotPending, VotingSystem__VotingIsNotOpened, VotingSystem__VotingIsNotClosed} from "../src/VotingSystem.sol";
+import {VotingSystem, VotingSystem__NotTheOwner, VotingSystem__VotingIsNotPending} from "../src/VotingSystem.sol";
 
 contract VotingSystemTest is Test {
     VotingSystem votingSystem;

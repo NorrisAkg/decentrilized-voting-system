@@ -124,11 +124,15 @@ contract VotingSystem {
     {
         uint256 maxVotesCount = 0;
         uint256 winnerId = 0;
-        for (uint256 index = 0; index < candidates.length; index++) {
+        uint256 candidatesCount = candidates.length;
+        for (uint256 index = 0; index < candidatesCount; ) {
             Candidate memory candidate = getCandidate(index);
             if (candidate.votes > maxVotesCount) {
                 maxVotesCount = candidate.votes;
                 winnerId = index;
+            }
+            unchecked {
+                ++index;
             }
         }
 
